@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const morgan = require("morgan");
 
 let persons = [
   {
@@ -30,7 +31,17 @@ let persons = [
 ];
 
 app.use(express.json());
-
+app.use(morgan("tiny"));
+//
+const requestLogger = (request, response, next) => {
+  console.log("Method:", request.method);
+  console.log("Path:", request.path);
+  console.log("Body:", request.body);
+  console.log("----");
+  next();
+};
+app.use(requestLogger);
+//
 app.get("/api/persons", (request, response) => {
   response.json(persons);
 });
@@ -42,4 +53,53 @@ app.get("/info", (request, response) => {
   <p>${time}</p>`);
 });
 
+app.get("/api/persons/:id", (request, response) => {
+  const id = Number(request.params.id);
+  const person = persons.find((person) => id === person.id);
+  if (!person) {
+    response.status(404).end();
+  }
+  response.json(person);
+});
+//
+app.delete("/api/persons/:id", (request, response) => {
+  const id = Number(request.params.id);
+  persons = persons.filter((person) => id !== person.id);
+  response.status(204).end();
+});
+//
+const generateId = () => {
+  return Math.floor(Math.random() * 99999999);
+};
+//
+app.post("/api/persons", (request, response) => {
+  const body = request.body;
+  for (let person of persons) {
+    if (body.name === person.name) {
+      return response.status(400).json({
+        error: "name already exists on server",
+      });
+    }
+    if (!body.name || !body.number) {
+      return response.status(400).json({
+        error: "name or number is missing from request",
+      });
+    }
+  }
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: generateId(),
+  };
+
+  persons = persons.concat(person);
+  response.send(persons);
+});
+//
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
+//
 app.listen(3001);
