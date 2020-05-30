@@ -31,7 +31,10 @@ let persons = [
 ];
 
 app.use(express.json());
-app.use(morgan("tiny"));
+morgan.token("contact-data", (request, response) => {
+  return (JSON.stringify(request.body));
+});
+app.use(morgan(`:method :url :status - :response-time ms :contact-data`));
 //
 const requestLogger = (request, response, next) => {
   console.log("Method:", request.method);
@@ -44,6 +47,7 @@ app.use(requestLogger);
 //
 app.get("/api/persons", (request, response) => {
   response.json(persons);
+  
 });
 
 app.get("/info", (request, response) => {
