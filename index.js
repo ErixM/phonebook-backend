@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
-
+const cors = require("cors");
 let persons = [
   {
     name: "Arto Hellas",
@@ -29,10 +29,10 @@ let persons = [
     id: 5,
   },
 ];
-
+app.use(cors());
 app.use(express.json());
 morgan.token("contact-data", (request, response) => {
-  return (JSON.stringify(request.body));
+  return JSON.stringify(request.body);
 });
 app.use(morgan(`:method :url :status - :response-time ms :contact-data`));
 //
@@ -47,7 +47,6 @@ app.use(requestLogger);
 //
 app.get("/api/persons", (request, response) => {
   response.json(persons);
-  
 });
 
 app.get("/info", (request, response) => {
@@ -106,4 +105,7 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint);
 //
-app.listen(3001);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
