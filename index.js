@@ -29,6 +29,7 @@ let persons = [
     id: 5,
   },
 ];
+app.use(express.static("build"));
 app.use(cors());
 app.use(express.json());
 morgan.token("contact-data", (request, response) => {
