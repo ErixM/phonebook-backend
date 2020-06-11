@@ -67,7 +67,7 @@ const generateId = () => {
   return Math.floor(Math.random() * 99999999);
 };
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const body = request.body;
 
   if (!body.name || !body.number) {
@@ -81,7 +81,11 @@ app.post("/api/persons", (request, response) => {
     id: generateId(),
   });
 
-  person.save().then((person) => response.json(person));
+  person
+    .save()
+    .then((person) => person.toJSON())
+    .then((formattedPerson) => response.json(formattedPerson))
+    .catch((error) => next(error));
 });
 app.put("/api/persons/:id", (request, response, next) => {
   const body = request.body;
@@ -99,6 +103,8 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message);
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).send({ error: error.name });
   }
   next(error);
 };
