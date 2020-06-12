@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 mongoose.set("useCreateIndex", true);
 const uniqueValidator = require("mongoose-unique-validator");
 require("dotenv").config();
-
+mongoose.set("useFindAndModify", false);
 const url = process.env.MONGODB_URI;
 console.log("connecting to", url);
 
@@ -17,6 +17,7 @@ const personSchema = new mongoose.Schema({
     minlength: 3,
     required: true,
     unique: true,
+    uniqueCaseInsensitive: true,
   },
   number: {
     type: String,

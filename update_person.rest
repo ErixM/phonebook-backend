@@ -1,0 +1,7 @@
+PUT http://localhost:3001/api/persons/5ee3d1b150c13c20349e83ef
+Content-Type: application/json
+
+{
+  "name": "linf",
+  "number": "646546454541"
+}
