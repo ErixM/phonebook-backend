@@ -29,7 +29,7 @@ if (process.argv.length === 2) {
     number: contactNumber,
   });
 
-  contact.save().then((result) => {
+  contact.save().then(() => {
     console.log(`added ${contactName} number ${contactNumber} to phonebook`);
     mongoose.connection.close();
   });

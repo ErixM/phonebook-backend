@@ -9,12 +9,11 @@ app.use(express.json());
 require("dotenv").config();
 const Person = require("./modules/person");
 
-// morgan
-morgan.token("contact-data", (request, response) => {
+morgan.token("contact-data", (request) => {
   return JSON.stringify(request.body);
 });
 app.use(morgan(`:method :url :status - :response-time ms :contact-data`));
-// custom middlewares
+
 const requestLogger = (request, response, next) => {
   console.log("Method:", request.method);
   console.log("Path:", request.path);
@@ -27,12 +26,12 @@ app.use(requestLogger);
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
 };
-//
+
 app.get("/api/persons", (request, response) => {
   Person.find({}).then((returnedPersons) => response.json(returnedPersons));
 });
 
-app.get("/info", (request, response) => {
+app.get("/info", (request, response, next) => {
   const time = new Date();
   Person.find({})
     .then((persons) => {
@@ -56,13 +55,13 @@ app.get("/api/persons/:id", (request, response, next) => {
       next(error);
     });
 });
-//
+
 app.delete("/api/persons/:id", (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then(response.status(204).end())
     .catch((error) => next(error));
 });
-//
+
 const generateId = () => {
   return Math.floor(Math.random() * 99999999);
 };
